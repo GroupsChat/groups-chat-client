@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+commitlint=".github/tools/commitlint/node_modules/.bin/commitlint"
+config=".github/tools/commitlint/commitlint.config.cjs"
+
+if [ ! -x "$commitlint" ]; then
+  echo "Commitlint is not installed. Run: npm ci --prefix .github/tools/commitlint" >&2
+  exit 1
+fi
+
+exec "$commitlint" --config "$config" --edit "$1"

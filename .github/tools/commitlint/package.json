@@ -1,0 +1,13 @@
+{
+  "name": "groups-chat-client-commitlint",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "npm@11.9.0",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4"
+  }
+}
