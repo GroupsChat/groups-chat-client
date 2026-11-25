@@ -1,0 +1,49 @@
+name: Pull Request CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  commits:
+    uses: ./.github/workflows/reusable-commits.yml
+    with:
+      validate-pr-title: true
+  quality:
+    uses: ./.github/workflows/reusable-quality.yml
+  tests:
+    needs: [commits, quality]
+    uses: ./.github/workflows/reusable-tests.yml
+  native:
+    needs: [commits, quality]
+    uses: ./.github/workflows/reusable-native.yml
+  gate:
+    name: CI Gate
+    if: always()
+    needs: [commits, quality, tests, native]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every validation to pass
+        env:
+          COMMITS_RESULT: ${{ needs.commits.result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          TESTS_RESULT: ${{ needs.tests.result }}
+          NATIVE_RESULT: ${{ needs.native.result }}
+        shell: bash
+        run: |
+          if [[ "$COMMITS_RESULT" == success && "$QUALITY_RESULT" == success \
+            && "$TESTS_RESULT" == success && "$NATIVE_RESULT" == success ]]; then
+            exit 0
+          fi
+          echo "commits=$COMMITS_RESULT quality=$QUALITY_RESULT tests=$TESTS_RESULT native=$NATIVE_RESULT"
+          exit 1

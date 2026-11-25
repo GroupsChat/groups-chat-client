@@ -1,0 +1,19 @@
+name: Main CI
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/reusable-quality.yml
+  tests:
+    needs: [quality]
+    uses: ./.github/workflows/reusable-tests.yml
+  native:
+    needs: [quality]
+    uses: ./.github/workflows/reusable-native.yml

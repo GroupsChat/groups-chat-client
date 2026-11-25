@@ -1,0 +1,19 @@
+name: Branch CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commits:
+    uses: ./.github/workflows/reusable-commits.yml
+  quality:
+    uses: ./.github/workflows/reusable-quality.yml
